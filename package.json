@@ -1,0 +1,37 @@
+{
+  "name": "oos-watch",
+  "version": "0.0.1",
+  "description": "Out of stock watcher",
+  "main": "index.js",
+  "author": "Louis Zhang",
+  "license": "MIT",
+  "scripts": {
+    "build": "npm run clean && npm run webpack && npm run pack",
+    "clean": "rimraf dist/main dist/oos-watch.crx",
+    "dev": "cross-env NODE_ENV=development webpack --progress --colors --watch",
+    "pack": "crx pack dist/main -o ./dist/oos-watch.crx && rimraf dist/main/key.pem",
+    "webpack": "cross-env NODE_ENV=production webpack --progress --hide-modules"
+  },
+  "dependencies": {
+    "vue": "^2.5.16"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "^1.6.1",
+    "copy-webpack-plugin": "^4.5.1",
+    "cross-env": "^5.1.4",
+    "crx": "^3.2.1",
+    "css-loader": "^0.28.11",
+    "file-loader": "^1.1.11",
+    "rimraf": "^2.6.2",
+    "stylus": "^0.54.5",
+    "stylus-loader": "^3.0.2",
+    "vue-loader": "^14.2.2",
+    "vue-style-loader": "^4.1.0",
+    "vue-template-compiler": "^2.5.16",
+    "webpack": "^4.5.0",
+    "webpack-cli": "^2.0.14",
+    "webpack-dev-server": "^3.1.3"
+  }
+}

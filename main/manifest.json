@@ -1,0 +1,31 @@
+{
+    "name": "OOS Watch",
+    "description": "Out of stock watcher",
+    "version": "0.0.1",
+    "icons": {
+        "128": "images/icon.png"
+    },
+    "permissions": [
+        "tabs",
+        "storage"
+    ],
+    "background": {
+        "scripts": ["scripts/background.js"]
+    },
+    "page_action": {
+        "default_icon": "images/icon.png",
+        "default_title": "OOS Watch"
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "https://detail.tmall.com/*",
+                "https://item.taobao.com/*",
+                "https://detail.tmall.hk/*"
+            ],
+            "js": ["build/content_script.js"],
+            "run_at": "document_end"
+        }
+    ],
+    "manifest_version": 2
+}
