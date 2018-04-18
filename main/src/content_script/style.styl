@@ -1,0 +1,111 @@
+$themes = (tb #f40) (tm #ff0037) (tmgj #8743e7)
+
+common-trans() {
+    transition: all .3s ease
+}
+
+#oss-watch {
+    font-size: 12px
+    position: absolute
+    top: 250px
+    right: 100px
+    z-index: 999
+    box-sizing: border-box
+
+    ul {
+        margin: 0
+        padding: 0
+        list-style-type: none
+    }
+
+    button {
+        outline: none
+        -webkit-font-smoothing: inherit
+        -webkit-appearance: none
+        cursor: pointer
+    }
+
+    .ow-btn {
+        common-trans()
+    }
+
+    .ow-btn-entry {
+        padding: 4px 8px
+        border-width: 1px
+        border-style: solid
+        border-radius: 4px
+    }
+
+    h5.ow-title {
+        font-size: 14px
+    }
+
+    .ow-title {
+        margin: 0
+        padding-bottom: 6px
+    }
+
+    .ow-container {
+        width: 150px
+        padding-top: 10px
+    }
+
+    .ow-hr {
+        width: 150px
+        height: 2px
+        margin: 0
+        border: none
+    }
+
+    .ow-type-list {
+        display: flex
+        flex-wrap: wrap
+    }
+
+    .ow-type {
+        width: 34px
+        height: 34px
+        margin: 0 3px 5px 0
+        border: 2px solid #dcdcdc
+        box-sizing: border-box
+        cursor: pointer
+        common-trans()
+    }
+
+    .ow-img-box {
+        width: 30px
+        height: 30px
+    }
+
+    .ow-img {
+        object-fit: cover
+    }
+}
+
+for $t in $themes {
+    $theme-name = $t[0]
+    $color = $t[1]
+    $color-light = lightness($color, 70%)
+
+    #oss-watch.theme-{$theme-name} {
+        color: $color
+
+        .ow-btn {
+            color: $color
+            border-color: $color
+
+            &:hover  {
+                color: lightness($color, 70%)
+                border-color: lightness($color, 70%)
+            }
+        }
+
+        .ow-hr {
+            background-color: $color
+        }
+
+        .ow-type:hover, .ow-type.ow-active {
+            border-color: $color-light
+        }
+    }
+}

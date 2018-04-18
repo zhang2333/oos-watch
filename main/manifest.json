@@ -6,12 +6,12 @@
         "128": "images/icon.png"
     },
     "permissions": [
-        "tabs",
-        "storage"
+        "tabs"
     ],
     "background": {
         "scripts": ["scripts/background.js"]
     },
+    "options_page": "options.html",
     "page_action": {
         "default_icon": "images/icon.png",
         "default_title": "OOS Watch"
