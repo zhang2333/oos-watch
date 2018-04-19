@@ -1,5 +1,7 @@
 import Vue from 'vue'
 
+import 'animate.css/animate.min.css'
+
 import Box from './Box.vue'
 import { emit } from './emitter'
 
@@ -20,4 +22,4 @@ chrome.runtime.sendMessage({ method: 'getSiteId' }, (resp) => {
     }
 })
 
-console.log('OOS Watch loaded')
+console.info('OOS Watch is ready')

@@ -8,12 +8,13 @@ exports.cssLoaders = function () {
 
     // generate loader string to be used with extract text plugin
     function generateLoaders(loader) {
-        const loaders = [cssLoader]
+        const loaders = [{ loader: 'vue-style-loader' }, cssLoader]
         if (loader) {
             loaders.push({
                 loader: loader + '-loader'
             })
         }
+        return loaders
     }
 
     // https://vue-loader.vuejs.org/en/configurations/extract-css.html

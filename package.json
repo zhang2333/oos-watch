@@ -13,6 +13,7 @@
     "webpack": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "dependencies": {
+    "animate.css": "^3.6.1",
     "vue": "^2.5.16"
   },
   "devDependencies": {
