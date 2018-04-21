@@ -1,6 +1,7 @@
 const path = require('path')
 const webpack = require('webpack')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 const vueUtils = require('./vue-utils')
 
@@ -9,13 +10,14 @@ const styleLoaders = vueUtils.styleLoaders()
 
 console.log('env', process.env.NODE_ENV)
 
+const outputDir = path.resolve(__dirname, './dist/main/build')
+
 module.exports = {
   entry: {
     content_script: './main/src/content_script/main.js'
   },
   output: {
-    path: path.resolve(__dirname, './dist/main/build'),
-    publicPath: '/dist/',
+    path: outputDir,
     filename: '[name].js'
   },
   module: {
@@ -33,7 +35,7 @@ module.exports = {
         exclude: /node_modules/
       },
       {
-        test: /\.(png|jpg|gif|svg)$/,
+        test: /\.(png|jpg|gif|eot|svg|ttf|woff|woff2)$/,
         loader: 'file-loader',
         options: {
           name: '[name].[ext]?[hash]'
@@ -41,37 +43,35 @@ module.exports = {
       }
     ].concat(styleLoaders))
   },
-  // resolve: {
-  //   alias: {
-  //     'vue$': 'vue/dist/vue.esm.js'
-  //   }
-  // },
   performance: {
     hints: false
   },
   devServer: {
-    historyApiFallback: true,
-    noInfo: true
+    contentBase: outputDir,
+    port: 9090,
   },
-  // devtool: '#eval-source-map'
-  devtool: '#source-map',
-  mode: process.env.NODE_ENV
+  devtool: '#eval-source-map',
+  // devtool: '#source-map',
+  mode: process.env.NODE_ENV,
 }
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'development') {
+  module.exports.plugins = (module.exports.plugins || []).concat([
+    new HtmlWebpackPlugin()
+  ])
+} else if (process.env.NODE_ENV === 'production') {
   module.exports.devtool = '#source-map'
   // http://vue-loader.vuejs.org/en/workflow/production.html
   module.exports.plugins = (module.exports.plugins || []).concat([
-    new webpack.DefinePlugin({
-      'process.env': {
-        NODE_ENV: '"production"'
-      }
-    }),
     new webpack.LoaderOptionsPlugin({
       minimize: true
     }),
     new CopyWebpackPlugin([
-      { from: 'main', to: path.resolve(__dirname, 'dist/main') }
+      {
+        from: 'main',
+        to: path.resolve(__dirname, 'dist/main'),
+        ignore: [ 'src/**/*' ]
+      }
     ])
   ])
 }

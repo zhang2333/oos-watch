@@ -1,6 +1,7 @@
 import Vue from 'vue'
 
 import 'animate.css/animate.min.css'
+import 'material-design-icons/iconfont/material-icons.css'
 
 import Box from './Box.vue'
 import { emit } from './emitter'
@@ -16,10 +17,13 @@ const app = new Vue({
     render: h => h(Box)
 })
 
-chrome.runtime.sendMessage({ method: 'getSiteId' }, (resp) => {
-    if (resp) {
-        emit('inject-themeName', resp)
-    }
-})
+const href = window.location.href
+if (!/^file:.*/.test(href) && !/^http:\/\/localhost/.test(href)) {
+    chrome.runtime.sendMessage({ method: 'getSiteId' }, (resp) => {
+        if (resp) {
+            emit('inject-themeName', resp)
+        }
+    })
+}
 
 console.info('OOS Watch is ready')
