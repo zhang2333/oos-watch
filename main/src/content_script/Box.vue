@@ -8,7 +8,7 @@
                 @click="start"
                 :disabled="!isInited"
                 v-if="!isStarted">
-                补货通知
+                补货提醒
             </button>
 
             <div class="ow-main" v-else="isStarted">
@@ -93,8 +93,8 @@
 </template>
 
 <script>
-import * as emitter from './emitter'
 import * as Adapters from './adapters'
+import * as emitter from './emitter'
 
 export default {
     name: 'Box',

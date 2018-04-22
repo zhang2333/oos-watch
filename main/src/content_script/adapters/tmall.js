@@ -1,10 +1,4 @@
-function queryElements(query) {
-    return Array.from(document.querySelectorAll(query))
-}
-
-function getFullHTML() {
-    return document.documentElement.outerHTML
-}
+import { queryElements, getFullHTML, wait, waitFor } from '../utils'
 
 function scrapeText() {
     const eleArr = queryElements('.tm-sale-prop .tb-metatit')
@@ -196,6 +190,16 @@ class Monitor {
 export default {
     newMonitor(pollingInterval) {
         return new Monitor(pollingInterval)
+    },
+
+    async loadApp(appEl) {
+        let id = 'col-extra'
+        await waitFor('#col-extra', 6e4)
+        try {
+            await waitFor('#J_DescCate', 3000)
+            id = 'J_DescCate'
+        } catch(e) {}
+        document.getElementById(id).appendChild(appEl)
     },
 
     scrapeRawData() {

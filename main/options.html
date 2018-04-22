@@ -2,9 +2,57 @@
 <html lang="zh">
     <head>
         <meta charset=“utf-8”>
-        <title>OOS Watch - Intro</title>
+        <title>OOS Watch</title>
+        <style>
+            body {
+                display: flex;
+                justify-content: center;
+            }
+
+            .main {
+                width: 700px;
+                padding: 30px;
+            }
+
+            .li {
+                padding-bottom: 10px;
+                line-height: 1.5;
+            }
+        </style>
     </head>
     <body>
-        <p>补货通知助手 0.0.1</p>
+        <div class="main">
+            <h2>OOS Watch 0.1.0</h2>
+            <p class="p">
+                淘宝补货提醒助手
+            </p>
+            <h3>使用说明</h3>
+            <ol class="ol">
+                <li class="li">
+                    提醒功能入口（写有“补货提醒”字样的按钮）位于淘宝商品详情页的右侧，如未找到请向下滚屏一段距离
+                </li>
+                <li class="li">
+                    为了您能够及时获得补货消息，我们使用了浏览器通知的方式来提醒您，为确保该功能正常请您“允许通知”
+                </li>
+                <li class="li">
+                    补货监控每5分钟检查一次商品的库存，该时间尚不能自行调整
+                </li>
+                <li class="li">
+                    补货监控任务开始后请勿关闭页面，为防止误操作关闭页面，您可以右键标签页标题选择“固定标签页”
+                </li>
+            </ol>
+            <h3>注意事项</h3>
+            <ol class="ol">
+                <li class="li">
+                    助手目前只支持天猫，淘宝与天猫国际的适配仍在进行中
+                </li>
+                <li class="li">
+                    淘宝会时常改版，助手也会因此失效，还请谅解
+                </li>
+                <li class="li">
+                    如发现任何异常情况，均可通过邮件向开发者反馈（spade9k@gmail.com）
+                </li>
+            </ol>
+        </div>
     </body>
 </html>

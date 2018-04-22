@@ -1,7 +1,7 @@
 {
     "name": "OOS Watch",
-    "description": "Out of stock watcher",
-    "version": "0.0.1",
+    "description": "Taobao补货提醒",
+    "version": "0.1.0",
     "icons": {
         "128": "images/icon.png"
     },
