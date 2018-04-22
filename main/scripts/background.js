@@ -1,8 +1,9 @@
 ;(function () {
     const sites = {
         tm: 'https://detail.tmall.com/*',
-        tb: 'https://item.taobao.com/*',
-        tmgj: 'https://detail.tmall.hk/*',
+        // TODO: adapt
+        // tb: 'https://item.taobao.com/*',
+        // tmgj: 'https://detail.tmall.hk/*',
     }
     const siteRegs = Object.keys(sites).map((s) => {
         let o = {}

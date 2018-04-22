@@ -1,57 +1,75 @@
-export const types = [
-    {
-        id: '1',
-        img: 'https://gd3.alicdn.com/imgextra/i4/75624033/TB2baBapylnpuFjSZFgXXbi7FXa_!!75624033.jpg_30x30.jpg',
-        title: '11111',
-        sizes: [
-            { id: '13213', name: 'MMMMM' },
-            { id: '12412', name: 'LLLLLL' },
-            { id: 'agew', name: 'XL' },
-            { id: '321521', name: 'XXXXXXL' },
-            { id: '531513', name: 'XXXL' },
-        ]
-    },
-    {
-        id: '2',
-        img: 'https://gd3.alicdn.com/imgextra/i2/75624033/TB2Ef.OpmVmpuFjSZFFXXcZApXa_!!75624033.jpg_30x30.jpg',
-        title: '22222',
-        sizes: [
-            { id: '41243214', name: 'M' },
-        ]
-    },
-    {
-        id: '3',
-        img: 'https://gd1.alicdn.com/imgextra/i1/75624033/TB2DIqehH0kpuFjy0FjXXcBbVXa_!!75624033.jpg_30x30.jpg',
-        title: '33333',
-        sizes: [
-            { id: '4321', name: 'XL' },
-            { id: '5f4f', name: 'XXXL' },
-        ]
-    },
-    {
-        id: '4',
-        img: 'https://gd4.alicdn.com/imgextra/i3/75624033/TB29Hael90mpuFjSZPiXXbssVXa_!!75624033.jpg_30x30.jpg',
-        title: '3333333',
-        sizes: [
-            { id: '532f', name: 'XL' },
-            { id: 'few32', name: 'XXL' },
-        ]
-    },
-    {
-        id: '5',
-        img: 'https://gd2.alicdn.com/imgextra/i1/75624033/TB2LhYApB8lpuFjy0FnXXcZyXXa_!!75624033.jpg_30x30.jpg',
-        title: '44444',
-        sizes: [
-            { id: 'ae2', name: 'M' },
-            { id: 'vew43', name: 'L' },
-        ]
-    },
-    {
-        id: '6',
-        img: 'https://gd3.alicdn.com/imgextra/i3/75624033/TB24UHlh9hlpuFjSspkXXa1ApXa_!!75624033.jpg_30x30.jpg',
-        title: '555555',
-        sizes: [
-            { id: 'few432', name: 'XL' },
-        ]
-    },
-]
+const text = {
+    sizeText: '尺码',
+    typeText: '颜色',
+}
+
+const types = [{
+    "id": "1627207:100760277",
+    "title": "00 白色",
+    "img": "https://img.alicdn.com/imgextra/i2/196993935/TB27Vpti49YBuNjy0FfXXXIsVXa-196993935.jpg_40x40q90.jpg"
+}, {
+    "id": "1627207:756290108",
+    "title": "69 藏青色",
+    "img": "https://img.alicdn.com/imgextra/i4/196993935/TB2ILBfi4WYBuNjy1zkXXXGGpXa-196993935.jpg_40x40q90.jpg"
+}]
+
+const sizes = [{
+    "id": "20509:825854967",
+    "name": "160/76A/XS"
+}, {
+    "id": "20509:402200618",
+    "name": "165/84A/S"
+}, {
+    "id": "20509:389276485",
+    "name": "170/92A/M"
+}, {
+    "id": "20509:798724917",
+    "name": "175/100A/L"
+}, {
+    "id": "20509:812854900",
+    "name": "180/108B/XL"
+}]
+
+const skus = [{
+    "names": "160/76A/XS 00 白色 ",
+    "pvs": "20509:825854967;1627207:100760277",
+    "skuId": "3589199356217"
+}, {
+    "names": "165/84A/S 00 白色 ",
+    "pvs": "20509:402200618;1627207:100760277",
+    "skuId": "3589199356219"
+}, {
+    "names": "170/92A/M 00 白色 ",
+    "pvs": "20509:389276485;1627207:100760277",
+    "skuId": "3589199356221"
+}, {
+    "names": "175/100A/L 00 白色 ",
+    "pvs": "20509:798724917;1627207:100760277",
+    "skuId": "3589199356223"
+}, {
+    "names": "180/108B/XL 00 白色 ",
+    "pvs": "20509:812854900;1627207:100760277",
+    "skuId": "3589199356225"
+}, {
+    "names": "160/76A/XS 69 藏青色 ",
+    "pvs": "20509:825854967;1627207:756290108",
+    "skuId": "3589199356218"
+}, {
+    "names": "165/84A/S 69 藏青色 ",
+    "pvs": "20509:402200618;1627207:756290108",
+    "skuId": "3589199356220"
+}, {
+    "names": "170/92A/M 69 藏青色 ",
+    "pvs": "20509:389276485;1627207:756290108",
+    "skuId": "3589199356222"
+}, {
+    "names": "175/100A/L 69 藏青色 ",
+    "pvs": "20509:798724917;1627207:756290108",
+    "skuId": "3589199356224"
+}, {
+    "names": "180/108B/XL 69 藏青色 ",
+    "pvs": "20509:812854900;1627207:756290108",
+    "skuId": "3589199356226"
+}]
+
+export default { text, types, sizes, skus }

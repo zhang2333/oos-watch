@@ -21,7 +21,7 @@ const href = window.location.href
 if (!/^file:.*/.test(href) && !/^http:\/\/localhost/.test(href)) {
     chrome.runtime.sendMessage({ method: 'getSiteId' }, (resp) => {
         if (resp) {
-            emit('inject-themeName', resp)
+            emit('inject-adapterName', resp)
         }
     })
 }

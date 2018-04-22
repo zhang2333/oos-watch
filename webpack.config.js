@@ -35,12 +35,19 @@ module.exports = {
         exclude: /node_modules/
       },
       {
-        test: /\.(png|jpg|gif|eot|svg|ttf|woff|woff2)$/,
+        test: /\.(png|jpg|gif|eot|svg|ttf|woff)$/,
         loader: 'file-loader',
         options: {
           name: '[name].[ext]?[hash]'
         }
-      }
+      },
+      {
+        test: /\.(woff2)$/,
+        loader: 'url-loader',
+        options: {
+          limit: 50000,
+        }
+      },
     ].concat(styleLoaders))
   },
   performance: {

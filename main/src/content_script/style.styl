@@ -1,6 +1,8 @@
 $themes = (tb #f40) (tm #ff0037) (tmgj #8743e7)
 
 $font-size = 12px
+$font-color = #000
+$main-width = 150px
 
 common-trans()
     transition: all .3s ease
@@ -19,16 +21,17 @@ disabled-btn()
 center()
     display: flex
     justify-content: center
-    align-content: center
+    align-items: center
 
 #oss-watch
     font-size: $font-size
-    position: absolute
+    position: fixed
     top: 50px
-    // right: 500px
-    left: 50px
+    right: 100px
+    // left: 50px
     z-index: 999
     box-sizing: border-box
+    // background-color: #fff
 
     ul
         margin: 0
@@ -43,6 +46,7 @@ center()
 
     .material-icons
         font-size: 14px
+        user-select: none
 
     .ow-btn
         padding: 4px 8px
@@ -57,9 +61,15 @@ center()
             width: 100%
             display: inline-block
 
+    .ow-main
+        width: $main-width
+
     .ow-btn-entry
         &:hover
             transform: scale(1.1)
+
+            &:disabled
+                transform: scale(1)
 
     h5.ow-title
         font-size: $font-size + 2
@@ -71,6 +81,9 @@ center()
         margin: 0
         padding-bottom: 6px
 
+        &.ow-title-plain
+            color: $font-color
+
     .ow-close
         color: #bfbfbf
         position: absolute
@@ -78,10 +91,8 @@ center()
         right: 0px
         common-trans()
         cursor: pointer
-        user-select: none
 
     .ow-hr
-        width: 150px
         height: 2px
         margin: 0
         border: none
@@ -90,16 +101,19 @@ center()
         margin-top: 10px
 
     .ow-task
-        color: #000
+        color: $font-color
         padding: 5px 2px
-        position: relative
+        display: flex
+        justify-content: space-between
+        align-items: center
+
+        .ow-task-title
+            width: $main-width - 10px
+            word-wrap: break-word
 
         .ow-i-remove
             font-weight: bold
             display: none
-            position: absolute
-            top: 5px
-            right: 6px
             common-trans()
             cursor: pointer
 
@@ -126,7 +140,7 @@ center()
 
     // start -- create box
     .ow-create-box
-        width: 150px
+        width: $main-width
         margin-top: 10px
         box-sizing: border-box
 
@@ -157,6 +171,7 @@ center()
         height: 30px
 
     .ow-img
+        width: 100%
         object-fit: cover
 
     .ow-size-list
@@ -167,7 +182,7 @@ center()
         margin-right: 4px
         margin-bottom: 6px
         padding: 6px
-        color: #000
+        color: $font-color
         border: 1px solid #dcdcdc
         text-align: center
         display: block
@@ -178,6 +193,7 @@ center()
         padding-top: 10px
 
     .ow-msg
+        padding: 5px
         text-align: center
     // end -- create box
 
@@ -237,18 +253,23 @@ for $t in $themes
         .ow-size:hover, .ow-size.ow-active
             border-color: $color-light
 
-// transitions
-.fadeLeftIn-enter
-    opacity: 0
-    transform: translateX(-50px)
 
-.fadeLeftIn-enter-active
+#oss-watch.theme-tm
+    top: 220px
+    right: 145px
+
+// transitions
+.fadeRightIn-enter
+    opacity: 0
+    transform: translateX(50px)
+
+.fadeRightIn-enter-active
     common-trans()
 
-.fadeLeftIn-enter-to
+.fadeRightIn-enter-to
     opacity: 1
     transform: translateX(0px)
-    
+
 .fadeUpIn-enter
     opacity: 0
     transform: translateY(-20px)
@@ -273,7 +294,7 @@ for $t in $themes
 
 .fade-enter
     opacity: 0
-    transform: translateX(-50px)
+    transform: translateX(50px)
 
 .fade-enter-active
     common-trans()
@@ -291,7 +312,16 @@ for $t in $themes
 
 .fade-leave-to
     opacity: 0
-    transform: translateX(50px)
+    transform: translateX(-50px)
 
 .fade-move
     common-trans()
+
+.scale-enter
+    transform: scale(.7)
+
+.scale-enter-active
+    common-trans()
+
+.scale-enter-to
+    transform: scale(1)

@@ -6,6 +6,7 @@
         "128": "images/icon.png"
     },
     "permissions": [
+        "https://*.taobao.com/",
         "tabs"
     ],
     "background": {

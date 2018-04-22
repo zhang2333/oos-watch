@@ -1,11 +1,12 @@
 <template>
-    <div id="oss-watch" :class="themeClass">
+    <div id="oss-watch" :class="themeClass" v-if="adapterName">
         <transition leave-active-class="animated flipOutY"
             enter-active-class="animated flipInY"
             mode="out-in"
             appear>
             <button class="ow-btn ow-btn-entry"
                 @click="start"
+                :disabled="!isInited"
                 v-if="!isStarted">
                 补货通知
             </button>
@@ -17,21 +18,21 @@
                 <div class="ow-task-box">
                     <transition-group name="fade" class="ow-task-list" tag="ul">
                         <li class="ow-task" v-for="(t, i) of tasks" :key="t.id">
-                            {{ t.text }}
+                            <div class="ow-task-title">{{ t.text }}</div>
                             <i class="material-icons ow-i-remove"
                                 @click="onClickRemove(i)">clear</i>
                         </li>
                     </transition-group>
 
                     <button class="ow-btn ow-btn-newtask"
-                        @click="isShowCreating = true"
+                        @click="onClickShowCreate"
                         v-show="!isShowCreating">
                         <i class="material-icons">add</i>
                         新建任务
                     </button>
                 </div>
 
-                <transition name="fadeLeftIn">
+                <transition name="fadeRightIn">
                     <div class="ow-create-box" v-show="isShowCreating">
                         <h6 class="ow-title ow-title-create">
                             新建任务
@@ -39,30 +40,31 @@
                         </h6>
 
                         <div class="ow-create-task">
-                            <div class="ow-title">款式</div>
-
-                            <ul class="ow-type-list">
-                                <li class="ow-type"
-                                    v-for="(t, i) of types"
-                                    :class="{ 'ow-active': currentType && currentType.id === t.id }"
-                                    @click="onSelectType(t)"
-                                    :key="i">
-                                    <div class="ow-img-box">
-                                        <img :src="t.img" :title="t.title" class="ow-img">
-                                    </div>
-                                </li>
-                            </ul>
+                            <div class="ow-type-box" v-show="!!types.length">
+                                <div class="ow-title ow-title-plain">{{ text.typeText }}</div>
+                                <transition-group name="scale" class="ow-type-list" tag="ul">
+                                    <li class="ow-type"
+                                        v-for="(t, i) of types"
+                                        :class="{ 'ow-active': currentType && currentType.id === t.id }"
+                                        @click="onSelectType(t)"
+                                        :key="i">
+                                        <div class="ow-img-box">
+                                            <img :src="t.img" :title="t.title" class="ow-img">
+                                        </div>
+                                    </li>
+                                </transition-group>
+                            </div>
 
                             <transition name="fadeUpIn">
                                 <div class="ow-size-box" v-show="!!sizes">
-                                    <div class="ow-title">尺码</div>
+                                    <div class="ow-title ow-title-plain">{{ text.sizeText }}</div>
                                     <ul class="ow-size-list">
                                         <li class="ow-size"
                                             v-for="(s, i) of sizes"
-                                            :class="{ 'ow-active': currentSize && currentSize.id === s.id }"
+                                            :class="{ 'ow-active': currentSize && currentSize.sizeId === s.sizeId }"
                                             @click="onSelectSize(s)"
-                                            :key="s.id">
-                                            {{ s.name }}
+                                            :key="s.sizeId">
+                                            {{ s.sizeName }}
                                         </li>
                                     </ul>
                                 </div>
@@ -91,8 +93,8 @@
 </template>
 
 <script>
-import * as mock from './mock'
 import * as emitter from './emitter'
+import * as Adapters from './adapters'
 
 export default {
     name: 'Box',
@@ -100,27 +102,34 @@ export default {
     data() {
         return {
             // states
-            themeName: 'tb',
-            isStarted: true,
+            adapterName: '',
+            isInited: false,
+            isStarted: false,
             isShowCreating: false,
             hasSelectedSize: false,
             isDuplicatedTask: false,
 
-            // data
-            types: mock.types,
             tasks: [],
             currentType: null,
             currentSize: null,
+
+            // data
+            text: {
+                sizeText: '',
+                typeText: '',
+            },
+            types: [],
         }
     },
 
     computed: {
         themeClass() {
-            return 'theme-' + this.themeName
+            return 'theme-' + this.adapterName
         },
 
         sizes() {
-            return this.currentType ? this.currentType.sizes : null
+            if (!this.currentType || !this.currentType.sizes) return null
+            return this.currentType.sizes
         },
     },
 
@@ -129,8 +138,28 @@ export default {
             this.isStarted = true
         },
 
+        init(adapterName) {
+            const adapter = Adapters.loadAdapter(adapterName)
+            if (!adapter) return
+
+            const rawData = adapter.scrapeRawData()
+            const data = adapter.parseRawData(rawData)
+
+            this.monitor = adapter.newMonitor()
+            this.text = data.text
+            this.types = data.types
+
+            this.isInited = true
+        },
+
         onClickRemove(taskIndex) {
+            const t = this.tasks[taskIndex]
+            this.monitor.removeSku(t.skuId)
             this.tasks.splice(taskIndex, 1)
+        },
+
+        onClickShowCreate() {
+            this.isShowCreating = true
         },
 
         onSelectType(t) {
@@ -151,21 +180,21 @@ export default {
         },
 
         onClickCreate() {
-            const type = this.currentType
             const size = this.currentSize
 
             const task = {
-                id: `${type.id}_${size.id}`,
-                text: `${type.title} - ${size.name}`
+                id: size.id,
+                text: size.name,
+                skuId: size.skuId
             }
 
             if (this.tasks.filter(t => t.id === task.id).length) {
-                console.log('dddddd')
                 this.isDuplicatedTask = true
                 setTimeout(() => {
                     this.isDuplicatedTask = false
                 }, 1500)
             } else {
+                this.monitor.addSku(task.skuId, task.text)
                 this.tasks.push(task)
                 this.onClickClose()
             }
@@ -173,10 +202,11 @@ export default {
     },
 
     created() {
-        emitter.on('inject-themeName', (name) => {
-            this.themeName = name
+        emitter.on('inject-adapterName', (name) => {
+            this.adapterName = name
+            this.init(name)
         })
-    }
+    },
 }
 </script>
 
