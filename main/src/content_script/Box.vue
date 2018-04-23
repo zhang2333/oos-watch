@@ -138,11 +138,11 @@ export default {
             this.isStarted = true
         },
 
-        init(adapterName) {
+        async init(adapterName) {
             const adapter = Adapters.loadAdapter(adapterName)
             if (!adapter) return
 
-            const rawData = adapter.scrapeRawData()
+            const rawData = await adapter.scrapeRawData()
             const data = adapter.parseRawData(rawData)
 
             this.monitor = adapter.newMonitor()

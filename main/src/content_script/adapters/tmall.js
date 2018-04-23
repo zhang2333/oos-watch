@@ -1,51 +1,73 @@
-import { queryElements, getFullHTML, wait, waitFor } from '../utils'
+import { getFullHTML, wait, waitFor } from '../utils'
 
-function scrapeText() {
-    const eleArr = queryElements('.tm-sale-prop .tb-metatit')
-    const txtArr = eleArr.map(el => el.textContent)
-
-    const text = {
-        sizeText: null,
-        typeText: null,
+class Scraper {
+    constructor(doc = document) {
+        this._doc = doc
     }
 
-    if (txtArr.length > 1) {
-        text.sizeText = txtArr[0]
-        text.typeText = txtArr[1]
-    } else {
-        text.typeText = txtArr[0]
+    queryElements(query) {
+        return Array.from(this._doc.querySelectorAll(query))
+    }
+    
+    getFullHTML() {
+        return this._doc.documentElement.outerHTML
     }
 
+    scrapeText() {
+        const eleArr = this.queryElements('.tm-sale-prop .tb-metatit')
+        const txtArr = eleArr.map(el => el.textContent)
+
+        const text = {
+            sizeText: null,
+            typeText: null,
+        }
+    
+        if (txtArr.length > 1) {
+            text.sizeText = txtArr[0]
+            text.typeText = txtArr[1]
+        } else {
+            text.typeText = txtArr[0]
+        }
+
+        return text
+    }
+
+    scrapeTypes(text) {
+        const liArr = this.queryElements(`ul[data-property="${text}"] li`)
+        const types = liArr.map((l) => {
+            const id = l.attributes['data-value'].value
+            const title = l.title
+            const style = l.querySelector('a').attributes.style.value
+            const img = `https:${style.match(/url\(([^\)]+)\)/)[1]}`
+            return { id, title, img }
+        })
+        return types
+    }
+
+    scrapeSizes(text) {
+        const liArr = this.queryElements(`ul[data-property="${text}"] li`)
+        const sizes = liArr.map((l) => {
+            const id = l.attributes['data-value'].value
+            const name = l.textContent.trim()
+            return { id, name }
+        })
+        return sizes
+    }
+
+    scrapeSkus() {
+        const html = this.getFullHTML()
+        const initData = JSON.parse(html.match(/TShop\.Setup\(([^<]+)</)[1].split('\n')[1].trim())
+        const skuList = initData.valItemInfo.skuList
+        return skuList
+    }
+}
+
+async function fetchPage() {
+    const resp = await fetch(window.location.href, { credentials:'include' })
+    const buffers = await resp.arrayBuffer()
+    const text = new TextDecoder('GBK').decode(buffers)
+    debugger
     return text
-}
-
-function scrapeTypes(text) {
-    const liArr = queryElements(`ul[data-property="${text}"] li`)
-    const types = liArr.map((l) => {
-        const id = l.attributes['data-value'].value
-        const title = l.title
-        const style = l.querySelector('a').attributes.style.value
-        const img = `https:${style.match(/url\(([^\)]+)\)/)[1]}`
-        return { id, title, img }
-    })
-    return types
-}
-
-function scrapeSizes(text) {
-    const liArr = queryElements(`ul[data-property="${text}"] li`)
-    const sizes = liArr.map((l) => {
-        const id = l.attributes['data-value'].value
-        const name = l.textContent.trim()
-        return { id, name }
-    })
-    return sizes
-}
-
-function scrapeSkus() {
-    const html = getFullHTML()
-    const initData = JSON.parse(html.match(/TShop\.Setup\(([^<]+)</)[1].split('\n')[1].trim())
-    const skuList = initData.valItemInfo.skuList
-    return skuList
 }
 
 function scrapeItemId() {
@@ -140,7 +162,7 @@ class Monitor {
             if (q[sku.id].quantity > 0) {
                 sendNotice('OOS Watch - 补货通知', `${sku.name} 已补货!`)
             } else {
-                console.log(new Date().toLocaleString(), '还是没货~')
+                console.log(new Date().toLocaleString(), sku.name, '还是没货~')
             }
         })
     }
@@ -202,18 +224,26 @@ export default {
         document.getElementById(id).appendChild(appEl)
     },
 
-    scrapeRawData() {
+    async scrapeRawData() {
         const data = {}
 
-        const text = scrapeText()
+        const html = await fetchPage()
+        const doc = document.implementation.createHTMLDocument('cache')
+        // const wrapper = doc.createElement('div')
+        // wrapper.outerHTML = html
+        doc.write(html)
+
+        const scraper = new Scraper(doc)
+
+        const text = scraper.scrapeText()
         data.text = text
-        data.types = scrapeTypes(text.typeText)
+        data.types = scraper.scrapeTypes(text.typeText)
 
         if (text.sizeText) {
-            data.sizes = scrapeSizes(text.sizeText)
+            data.sizes = scraper.scrapeSizes(text.sizeText)
         }
-    
-        data.skus = scrapeSkus()
+
+        data.skus = scraper.scrapeSkus()
 
         return data
     },
