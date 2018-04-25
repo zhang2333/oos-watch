@@ -149,6 +149,8 @@ export default {
             this.text = data.text
             this.types = data.types
 
+            adapter.adapt(rawData)
+
             this.isInited = true
         },
 

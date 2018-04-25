@@ -66,7 +66,6 @@ async function fetchPage() {
     const resp = await fetch(window.location.href, { credentials:'include' })
     const buffers = await resp.arrayBuffer()
     const text = new TextDecoder('GBK').decode(buffers)
-    debugger
     return text
 }
 
@@ -224,6 +223,17 @@ export default {
         document.getElementById(id).appendChild(appEl)
     },
 
+    async adapt(rawData) {
+        const rrSel = '.tm-Right-Recommend'
+        waitFor(rrSel, 1e4)
+            .then(() => {
+                const tmRR = document.querySelector(rrSel)
+                const sizeLen = (rawData.sizes || []).length
+                tmRR.style.top = sizeLen * 40 + 210 + 'px'
+            })
+            .catch(() => {})
+    },
+
     async scrapeRawData() {
         const data = {}
 
@@ -250,7 +260,7 @@ export default {
 
     parseRawData(rawData) {
         const data = {}
-    
+
         const sizes = rawData.skus.map((sku) => {
             const pvsArr = sku.pvs.split(';')
             const typeId = pvsArr[1]
@@ -258,12 +268,12 @@ export default {
             const sizeName = rawData.sizes.filter(s => s.id === sizeId)[0].name
             return { id: sku.pvs, name: sku.names, typeId, sizeId, sizeName, skuId: sku.skuId }
         })
-    
+
         const types = rawData.types.map((type) => {
-            type.sizes = sizes.filter(s => s.typeId === type.id)
-            return type
+            const sz = sizes.filter(s => s.typeId === type.id)
+            return Object.assign({ sizes: sz }, type)
         })
-    
+
         return { text: rawData.text, types }
     },
 }
