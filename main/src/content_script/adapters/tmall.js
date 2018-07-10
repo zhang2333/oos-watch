@@ -1,4 +1,7 @@
-import { getFullHTML, wait, waitFor } from '../utils'
+import { getFullHTML, get, waitFor, fetchPage } from '../utils'
+import config from '../config'
+import Adapter from './abstract'
+import Monitor from './monitor'
 
 class Scraper {
     constructor(doc = document) {
@@ -62,34 +65,8 @@ class Scraper {
     }
 }
 
-async function fetchPage() {
-    const resp = await fetch(window.location.href, { credentials:'include' })
-    const buffers = await resp.arrayBuffer()
-    const text = new TextDecoder('GBK').decode(buffers)
-    return text
-}
-
 function scrapeItemId() {
     return getFullHTML().match(/itemId:"([^"]+)"/)[1]
-}
-
-// Monitor
-function reqPermission() {
-    Notification.requestPermission().then((result) => {
-        if (result === 'granted') {
-            console.log('请求消息推送权限成功！')
-        } else if (result === 'denied') {
-            console.log('请求消息推送权限失败！')
-        }
-    }).catch(console.error)
-}
-
-function sendNotice(title, body) {
-    const opts = {
-        body,
-        icon: 'https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1523687199326&di=6d7fb82c64a3fb7ecd19293ffcad5dab&imgtype=0&src=http%3A%2F%2Fimg.mp.itc.cn%2Fupload%2F20170724%2Fe68a3a58eedd4e1d82cc11e2218a8203_th.jpg'
-    }
-    new Notification(title, opts)
 }
 
 function pollQuantity(cachedTimestamp, itemId, isg, isg2, onResponse) {
@@ -122,14 +99,14 @@ function pollQuantity(cachedTimestamp, itemId, isg, isg2, onResponse) {
     const qs = Object.keys(query).map(k => `${k}=${query[k]}`).join('&')
     const url = `https://mdskip.taobao.com/core/initItemDetail.htm?${qs}`
 
-    fetch(url, { credentials: 'include' })
-        .then(res => res.text())
-        .then((rawText) => {
-            const line = rawText.split('\n').pop()
-            const json = line.slice(1, line.length - 1)
-            const r = JSON.parse(json)
-            onResponse(r)
-        })
+    get(url).then((rawText) => {
+        const line = rawText.split('\n').pop()
+        const json = line.slice(1, line.length - 1)
+        const r = JSON.parse(json)
+        const q = r.defaultModel.inventoryDO.skuQuantity
+        const getStock = sku => q[sku.skuId].quantity
+        onResponse(getStock)
+    })
 }
 
 function createPolling(onResponse) {
@@ -144,74 +121,10 @@ function createPolling(onResponse) {
     return pollQuantity.bind(null, cachedTimestamp, itemId, isg, isg2, onResponse)
 }
 
-class Monitor {
-    constructor(pollingInterval) {
-        this._skuArr = []
-        this._pollingInterval = pollingInterval || 5 * 6e4
-        this._timer = null
-
-        this._poll = createPolling(this._onQuantityUpdate.bind(this))
-
-        reqPermission()
-    }
-
-    _onQuantityUpdate(r) {
-        const q = r.defaultModel.inventoryDO.skuQuantity
-        this._skuArr.forEach((sku) => {
-            if (q[sku.id].quantity > 0) {
-                sendNotice('OOS Watch - 补货通知', `${sku.name} 已补货!`)
-            } else {
-                console.log(new Date().toLocaleString(), sku.name, '还是没货~')
-            }
-        })
-    }
-
-    isPolling() {
-        return !!this._timer
-    }
-
-    _clearTimer() {
-        if (this._timer) {
-            clearInterval(this._timer)
-        }
-        this._timer = null
-    }
-
-    startPolling() {
-        this._clearTimer()
-        this._poll()
-        this._timer = setInterval(this._poll, this._pollingInterval)
-    }
-
-    stop() {
-        this._clearTimer()
-    }
-
-    addSku(skuId, skuName) {
-        this._skuArr.push({ id: skuId, name: skuName })
-        if (!this.isPolling()) {
-            this.startPolling()
-        }
-    }
-
-    removeSku(skuId) {
-        const filterd = this._skuArr.filter(s => s.id === skuId)
-        if (filterd.length) {
-            const s = filterd[0]
-            const i = this._skuArr.indexOf(s)
-            this._skuArr.splice(i, 1)
-
-            if (this._skuArr.length < 1) {
-                this.stop()
-            }
-        }
-    }
-}
-
-export default {
+export default class TMAdapter extends Adapter {
     newMonitor(pollingInterval) {
-        return new Monitor(pollingInterval)
-    },
+        return new Monitor(config.icons.tm, pollingInterval, createPolling)
+    }
 
     async loadApp(appEl) {
         let id = 'col-extra'
@@ -221,7 +134,7 @@ export default {
             id = 'J_DescCate'
         } catch(e) {}
         document.getElementById(id).appendChild(appEl)
-    },
+    }
 
     async adapt(rawData) {
         const rrSel = '.tm-Right-Recommend'
@@ -232,7 +145,7 @@ export default {
                 tmRR.style.top = sizeLen * 40 + 210 + 'px'
             })
             .catch(() => {})
-    },
+    }
 
     async scrapeRawData() {
         const data = {}
@@ -256,7 +169,7 @@ export default {
         data.skus = scraper.scrapeSkus()
 
         return data
-    },
+    }
 
     parseRawData(rawData) {
         const data = {}
@@ -275,5 +188,5 @@ export default {
         })
 
         return { text: rawData.text, types }
-    },
+    }
 }

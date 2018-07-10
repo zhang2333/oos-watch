@@ -18,7 +18,12 @@
                 <div class="ow-task-box">
                     <transition-group name="fade" class="ow-task-list" tag="ul">
                         <li class="ow-task" v-for="(t, i) of tasks" :key="t.id">
-                            <div class="ow-task-title">{{ t.text }}</div>
+                            <div class="ow-task-title">
+                                <span class="ow-t-name">{{ t.text }}</span>
+                                <transition name="fade">
+                                    <span class="ow-stock" v-show="t.stock > -1">{{ t.stock }}</span>
+                                </transition>
+                            </div>
                             <i class="material-icons ow-i-remove"
                                 @click="onClickRemove(i)">clear</i>
                         </li>
@@ -94,7 +99,8 @@
 
 <script>
 import * as Adapters from './adapters'
-import * as emitter from './emitter'
+import eventBus from './event-bus'
+import { reqPermission } from './utils'
 
 export default {
     name: 'Box',
@@ -133,6 +139,14 @@ export default {
         },
     },
 
+    watch: {
+        isInited(n, o) {
+            if (n) {
+                reqPermission()
+            }
+        }
+    },
+
     methods: {
         start() {
             this.isStarted = true
@@ -144,10 +158,15 @@ export default {
 
             const rawData = await adapter.scrapeRawData()
             const data = adapter.parseRawData(rawData)
-
-            this.monitor = adapter.newMonitor()
             this.text = data.text
             this.types = data.types
+
+            this.monitor = adapter.newMonitor()
+            this.monitor.on('update', (sku, stock) => {
+                console.log(sku, stock)
+                // .stock = stock
+                this.$set(this.tasks.filter(t => t.skuId === sku.skuId)[0], 'stock', stock)
+            })
 
             adapter.adapt(rawData)
 
@@ -196,7 +215,7 @@ export default {
                     this.isDuplicatedTask = false
                 }, 1500)
             } else {
-                this.monitor.addSku(task.skuId, task.text)
+                this.monitor.addSku(task.id, task.skuId, task.text)
                 this.tasks.push(task)
                 this.onClickClose()
             }
@@ -204,7 +223,7 @@ export default {
     },
 
     created() {
-        emitter.on('inject-adapterName', (name) => {
+        eventBus.on('inject-adapterName', (name) => {
             this.adapterName = name
             this.init(name)
         })

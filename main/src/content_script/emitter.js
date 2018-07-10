@@ -1,16 +1,20 @@
-const listenersMap = {}
-
-export function on(eventName, onListen) {
-    if (!listenersMap[eventName]) {
-        listenersMap[eventName] = []
+export default class Emitter {
+    constructor() {
+        this.listenersMap = {}
     }
-    listenersMap[eventName].push(onListen)
-}
 
-export function emit(eventName, ...args) {
-    if (listenersMap[eventName]) {
-        for (let l of listenersMap[eventName]) {
-            l(...args)
+    on(eventName, onListen) {
+        if (!this.listenersMap[eventName]) {
+            this.listenersMap[eventName] = []
+        }
+        this.listenersMap[eventName].push(onListen)
+    }
+    
+    emit(eventName, ...args) {
+        if (this.listenersMap[eventName]) {
+            for (let l of this.listenersMap[eventName]) {
+                l(...args)
+            }
         }
     }
 }

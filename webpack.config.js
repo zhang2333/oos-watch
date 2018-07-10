@@ -67,7 +67,7 @@ if (process.env.NODE_ENV === 'development') {
     new HtmlWebpackPlugin()
   ])
 } else if (process.env.NODE_ENV === 'production') {
-  module.exports.devtool = '#source-map'
+  module.exports.devtool = void 0
   // http://vue-loader.vuejs.org/en/workflow/production.html
   module.exports.plugins = (module.exports.plugins || []).concat([
     new webpack.LoaderOptionsPlugin({

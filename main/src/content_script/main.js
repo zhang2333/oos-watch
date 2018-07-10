@@ -5,8 +5,7 @@ import 'material-design-icons/iconfont/material-icons.css'
 
 import Box from './Box.vue'
 import * as Adapters from './adapters'
-import { wait } from './utils'
-import { emit } from './emitter'
+import eventBus from './event-bus'
 
 async function start(adapterName) {
     const boxId = 'oos-watch'
@@ -22,7 +21,7 @@ async function start(adapterName) {
         render: h => h(Box)
     })
 
-    emit('inject-adapterName', adapterName)
+    eventBus.emit('inject-adapterName', adapterName)
 
     console.info('OOS Watch is ready')
 }
