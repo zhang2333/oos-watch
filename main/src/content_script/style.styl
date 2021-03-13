@@ -64,10 +64,7 @@ center()
 
     .ow-btn-entry
         &:hover
-            transform: scale(1.1)
-
-            &:disabled
-                transform: scale(1)
+            opacity: .8
 
     h5.ow-title
         font-size: $font-size + 2
@@ -108,6 +105,8 @@ center()
         .ow-task-title
             width: $main-width - 10px
             word-wrap: break-word
+            display: flex
+            align-items: center
 
         .ow-i-remove
             font-weight: bold
@@ -125,12 +124,15 @@ center()
                 display: block
 
         .ow-stock
+            width: 1.6em
+            height: 1.6em
+            line-height: 1.4
             margin-left: 5px
-            padding: 1px 4px
             color: #fff
             font-size: 10px
-            border-radius: 1em
-            vertical-align: text-top
+            border-radius: 1.6em
+            display: inline-block
+            text-align: center
 
     .ow-btn-newtask
         width: 100%
@@ -170,12 +172,22 @@ center()
         zoom: 100%
         common-trans()
 
+        &.ow-img-text
+            width: auto
+
+            .ow-img-box
+                width: auto
+                padding-left: 3px
+                padding-right: 3px
+
         &:hover
             transform: scale(1.1)
 
     .ow-img-box
         width: 30px
         height: 30px
+        line-height: 30px
+        text-align: center
 
     .ow-img
         width: 100%
@@ -267,6 +279,11 @@ for $t in $themes
 #oss-watch.theme-tm
     top: 220px
     right: 145px
+
+.ow-animated
+  animation-duration: .5s
+  animation-fill-mode: both
+
 
 // transitions
 .fadeRightIn-enter

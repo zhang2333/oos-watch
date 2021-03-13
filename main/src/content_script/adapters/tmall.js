@@ -1,4 +1,4 @@
-import { getFullHTML, get, waitFor, fetchPage } from '../utils'
+import { waitFor, fetchPage } from '../utils'
 import config from '../config'
 import Adapter from './abstract'
 import Monitor from './monitor'
@@ -40,8 +40,8 @@ class Scraper {
         const types = liArr.map((l) => {
             const id = l.attributes['data-value'].value
             const title = l.title
-            const style = l.querySelector('a').attributes.style.value
-            const img = `https:${style.match(/url\(([^\)]+)\)/)[1]}`
+            const style = l.querySelector('a').attributes.style
+            const img = style ? `https:${style.value.match(/url\(([^\)]+)\)/)[1]}` : ''
             return { id, title, img }
         })
         return types
@@ -61,64 +61,31 @@ class Scraper {
         const html = this.getFullHTML()
         const initData = JSON.parse(html.match(/TShop\.Setup\(([^<]+)</)[1].split('\n')[1].trim())
         const skuList = initData.valItemInfo.skuList
+            .map((skuInfo) => {
+                skuInfo.stock = initData.valItemInfo.skuMap[`;${skuInfo.pvs};`].stock
+                return skuInfo
+            })
         return skuList
     }
 }
 
-function scrapeItemId() {
-    return getFullHTML().match(/itemId:"([^"]+)"/)[1]
+async function createPageScraper() {
+    const html = await fetchPage()
+    const doc = document.implementation.createHTMLDocument('cache')
+    doc.write(html)
+
+    return new Scraper(doc)
 }
 
-function pollQuantity(cachedTimestamp, itemId, isg, isg2, onResponse) {
-    const query = {
-        isUseInventoryCenter: 'true',
-        cartEnable: 'true',
-        service3C: 'false',
-        isApparel: 'true',
-        isSecKill: 'false',
-        tmallBuySupport: 'true',
-        isAreaSell: 'true',
-        tryBeforeBuy: 'false',
-        offlineShop: 'false',
-        itemId: itemId,
-        showShopProm: 'false',
-        cachedTimestamp: cachedTimestamp,
-        isPurchaseMallPage: 'false',
-        isRegionLevel: 'true',
-        household: 'false',
-        sellerPreview: 'false',
-        queryMemberRight: 'true',
-        addressLevel: '3',
-        isForbidBuyItem: 'false',
-        callback: 'setMdskip',
-        timestamp: new Date().valueOf(),
-        isg,
-        isg2,
-    }
+async function pollQuantity(onResponse) {
+    const sp = await createPageScraper()
+    const skuList = sp.scrapeSkus()
 
-    const qs = Object.keys(query).map(k => `${k}=${query[k]}`).join('&')
-    const url = `https://mdskip.taobao.com/core/initItemDetail.htm?${qs}`
-
-    get(url).then((rawText) => {
-        const line = rawText.split('\n').pop()
-        const json = line.slice(1, line.length - 1)
-        const r = JSON.parse(json)
-        const q = r.defaultModel.inventoryDO.skuQuantity
-        const getStock = sku => q[sku.skuId].quantity
-        onResponse(getStock)
-    })
+    onResponse(sku => skuList.find(s => s.skuId === sku.skuId).stock)
 }
 
 function createPolling(onResponse) {
-    const html = getFullHTML()
-    const cachedTimestamp = html.match(/cachedTimestamp=([^&]+)/)[1]
-    const itemId = scrapeItemId()
-    let isg = document.cookie.match('(^|;) ?l=([^;]*)(;|$)')
-    let isg2 = document.cookie.match('(^|;) ?isg=([^;]*)(;|$)')
-    isg = (isg && isg[2]) || 'null'
-    isg2 = (isg2 && isg2[2]) || 'null'
-
-    return pollQuantity.bind(null, cachedTimestamp, itemId, isg, isg2, onResponse)
+    return pollQuantity.bind(null, onResponse)
 }
 
 export default class TMAdapter extends Adapter {
@@ -149,14 +116,7 @@ export default class TMAdapter extends Adapter {
 
     async scrapeRawData() {
         const data = {}
-
-        const html = await fetchPage()
-        const doc = document.implementation.createHTMLDocument('cache')
-        // const wrapper = doc.createElement('div')
-        // wrapper.outerHTML = html
-        doc.write(html)
-
-        const scraper = new Scraper(doc)
+        const scraper = await createPageScraper()
 
         const text = scraper.scrapeText()
         data.text = text
@@ -172,8 +132,6 @@ export default class TMAdapter extends Adapter {
     }
 
     parseRawData(rawData) {
-        const data = {}
-
         const sizes = rawData.skus.map((sku) => {
             const pvsArr = sku.pvs.split(';')
             const typeId = pvsArr[1]

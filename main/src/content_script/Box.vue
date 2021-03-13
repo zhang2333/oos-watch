@@ -1,7 +1,7 @@
 <template>
     <div id="oss-watch" :class="themeClass" v-if="adapterName">
-        <transition leave-active-class="animated flipOutY"
-            enter-active-class="animated flipInY"
+        <transition leave-active-class="ow-animated flipOutY"
+            enter-active-class="ow-animated flipInY"
             mode="out-in"
             appear>
             <button class="ow-btn ow-btn-entry"
@@ -11,7 +11,7 @@
                 补货提醒
             </button>
 
-            <div class="ow-main" v-else="isStarted">
+            <div class="ow-main" v-else>
                 <h5 class="ow-title">补货监控</h5>
                 <hr class="ow-hr">
 
@@ -50,11 +50,12 @@
                                 <transition-group name="scale" class="ow-type-list" tag="ul">
                                     <li class="ow-type"
                                         v-for="(t, i) of types"
-                                        :class="{ 'ow-active': currentType && currentType.id === t.id }"
+                                        :class="{ 'ow-active': currentType && currentType.id === t.id, 'ow-img-text': !t.img }"
                                         @click="onSelectType(t)"
                                         :key="i">
                                         <div class="ow-img-box">
-                                            <img :src="t.img" :title="t.title" class="ow-img">
+                                            <img :src="t.img" :title="t.title" class="ow-img" v-if="t.img">
+                                            <span v-else>{{ t.title }}</span>
                                         </div>
                                     </li>
                                 </transition-group>
@@ -78,7 +79,7 @@
                             <transition name="fadeDownIn">
                                 <div class="ow-btn-box ow-btn-create-box" v-show="hasSelectedSize">
                                     <button class="ow-btn ow-btn-block ow-btn-emp"
-                                        :class="isDuplicatedTask ? 'animated shake' : ''"
+                                        :class="isDuplicatedTask ? 'ow-animated shake' : ''"
                                         @click="onClickCreate"
                                         :disabled="!currentSize || isDuplicatedTask">
                                         创建
@@ -164,7 +165,6 @@ export default {
             this.monitor = adapter.newMonitor()
             this.monitor.on('update', (sku, stock) => {
                 console.log(sku, stock)
-                // .stock = stock
                 this.$set(this.tasks.filter(t => t.skuId === sku.skuId)[0], 'stock', stock)
             })
 
